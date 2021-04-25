@@ -1,20 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Net.Mime;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Astronot_hareket : MonoBehaviour
 {
-    public float hiz=1f;
+    //Public yapilan degiskenler Unity arayüzünde ilgili nesnede görüntülenir
+    public float hiz = 1f;
     public int tas_sayisi;
+    public int buyukTasSayisi;
     public bool indi_mi = false;
     public Animator benimAnimator;
     private float yatay;
     private float dikey;
+    public Text toplananTasSayisi;
+    public Text toplananBuyukTasSayisi;
+    public GameObject oyunSonuPaneli;
+    public Text oyunSonuTasSayisi;
+    public int saglik = 100;
+    public Text SaglikText;
+    public static bool oyunumuzBasladiMi = false;
+    public GameObject oyunBasiPaneli;
+    
 
     // Start is called before the first frame update
     void Start()
     {
-
+        SaglikText.text = saglik.ToString();
+        oyunumuzBasladiMi = false;
     }
 
     // Update is called once per frame
@@ -25,16 +39,29 @@ public class Astronot_hareket : MonoBehaviour
 
     void FixedUpdate()
     {
+
+        if (oyunumuzBasladiMi == false)
+        {
+            return;
+        }
+
+
         yatay = Input.GetAxis("Horizontal"); // Horizontal(yataydaki) hareket girdisi algilar, (sol-sag yon tuslari veya A-D) 
         // Debug.Log(yatay);
         transform.position += new Vector3(yatay * hiz, 0, 0);//sadece x ekseninde karaktere yatay*hiz kadar hareket verir
 
 
+        dikey = Input.GetAxis("Vertical"); // Vertical(dikeydeki) hareket girdisi algilar, (asagi-yukari yon tuslari veya W-S) 
+        // Debug.Log(yatay);
+        transform.position += new Vector3(0,dikey * hiz,  0);//sadece x ekseninde karaktere yatay*hiz kadar hareket verir
+
         //alttaki if yapisinda karakterin Transform komponentinde Scale'e erisip yonunu degistiriyoruz
         //scale'de yatay icin x'i, dikey icin y'yi eksi ile carpiyoruz
 
         YonDegistir(); //yon degistirme fonksiyonunu cagiriyoruz
-        
+
+
+
         bool yuruyormuyuz = false; //yuruyup yurumedigini kontrol etmek icin atanan degisken
 
         if (yatay != 0) //sag veya sola tiklanmissa
@@ -44,7 +71,7 @@ public class Astronot_hareket : MonoBehaviour
 
         if (yatay == 0) //yatayda hareket etmiyorsa
         {
-            yuruyormuyuz = false; 
+            yuruyormuyuz = false;
         }
 
         benimAnimator.SetBool("yuruyormu", yuruyormuyuz); //animator ile kod baglantisini yapiyor
@@ -56,12 +83,23 @@ public class Astronot_hareket : MonoBehaviour
         if (collision.tag == "Stone")  //Tag'i Stone olan nesnelere temas ederse
         {
             tas_sayisi++;  //tas sayisini bir arttir
+            toplananTasSayisi.text = tas_sayisi.ToString();
+            toplananTasSayisi.text = "00" + toplananTasSayisi.text;
+            Debug.Log("Tas toplandi"); //ekrana yaz
+            Destroy(collision.gameObject); //toplanan nesneyi sil
+        }
+
+        if (collision.tag == "BuyukTas")  //Tag'i Stone olan nesnelere temas ederse
+        {
+            buyukTasSayisi++;  //tas sayisini bir arttir
+            toplananBuyukTasSayisi.text = buyukTasSayisi.ToString();
+            toplananBuyukTasSayisi.text = "00" + toplananBuyukTasSayisi.text;
             Debug.Log("Tas toplandi"); //ekrana yaz
             Destroy(collision.gameObject); //toplanan nesneyi sil
         }
     }
 
-    private void OnTriggerExit2D(Collider2D collision) // //OnTriggerExit>>Temas kesildikten sonra tetikler. Astronot tasin sonuna dokundugunda burasi calisir
+    private void OnTriggerExit2D(Collider2D collision) //OnTriggerExit>>Temas kesildikten sonra tetikler. Astronot tasin sonuna dokundugunda burasi calisir
     {
 
     }
@@ -80,7 +118,15 @@ public class Astronot_hareket : MonoBehaviour
         if (collision.gameObject.tag == "engel")  //engel tag'ine sahip nesne ile temas edrse
         {
             Debug.Log("Ahhhhhhh!!!");//ekrana yazar
-            Destroy(this.gameObject); //bagli oldugu nesneyi yokeder (burada Astro yokolur)
+            saglik -= 20;
+            SaglikText.text = saglik.ToString();
+            if (saglik <= 0)
+            {
+                Destroy(this.gameObject); //bagli oldugu nesneyi yokeder (burada Astro yokolur)
+                oyunSonuPaneli.SetActive(true);
+                oyunSonuTasSayisi.text = tas_sayisi.ToString();
+            }
+
         }
 
     }
@@ -104,5 +150,12 @@ public class Astronot_hareket : MonoBehaviour
             transform.localScale = new Vector3(1, -1, 1);
         }
     }
+
+
+    public void OyunBasladi()
+    {
+        oyunumuzBasladiMi = true;
+        oyunBasiPaneli.SetActive(false);
+        oyunSonuTasSayisi.text=tas_sayisi.ToString();    }
 }
 

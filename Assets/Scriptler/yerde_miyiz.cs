@@ -24,6 +24,12 @@ public class yerde_miyiz : MonoBehaviour
 
     void Update()
     {
+        if (Astronot_hareket.oyunumuzBasladiMi ==false)
+        {
+            return;
+        }
+
+
         RaycastHit2D carpis = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, layer);
         if (carpis.collider!=null) //isinin yere carpip carpmamasi
         {
