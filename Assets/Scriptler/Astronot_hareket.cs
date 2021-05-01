@@ -22,17 +22,27 @@ public class Astronot_hareket : MonoBehaviour
     public Text SaglikText;
     public static bool oyunumuzBasladiMi = false;
     public GameObject oyunBasiPaneli;
-    
+    public AudioSource tasToplamaSesi;
+    public AudioSource ziplamaSesi;
+    public AudioSource yaralanmaSesi;
+    public AudioSource gameOverSesi;
+
 
     // Start is called before the first frame update
     void Start()
     {
         SaglikText.text = saglik.ToString();
         oyunumuzBasladiMi = false;
+        gameOverSesi.Stop();
     }
 
     // Update is called once per frame
     void Update()
+    {
+
+    }
+
+    void Awake()
     {
 
     }
@@ -53,7 +63,7 @@ public class Astronot_hareket : MonoBehaviour
 
         dikey = Input.GetAxis("Vertical"); // Vertical(dikeydeki) hareket girdisi algilar, (asagi-yukari yon tuslari veya W-S) 
         // Debug.Log(yatay);
-        transform.position += new Vector3(0,dikey * hiz,  0);//sadece x ekseninde karaktere yatay*hiz kadar hareket verir
+        transform.position += new Vector3(0, dikey * hiz, 0);//sadece x ekseninde karaktere yatay*hiz kadar hareket verir
 
         //alttaki if yapisinda karakterin Transform komponentinde Scale'e erisip yonunu degistiriyoruz
         //scale'de yatay icin x'i, dikey icin y'yi eksi ile carpiyoruz
@@ -86,7 +96,8 @@ public class Astronot_hareket : MonoBehaviour
             toplananTasSayisi.text = tas_sayisi.ToString();
             toplananTasSayisi.text = "00" + toplananTasSayisi.text;
             Debug.Log("Tas toplandi"); //ekrana yaz
-            Destroy(collision.gameObject); //toplanan nesneyi sil
+            Destroy(collision.gameObject); //toplanan nesneyi sil Destroy (collision.gameObject,0.05F); --> gecikmeli
+            tasToplamaSesi.Play();
         }
 
         if (collision.tag == "BuyukTas")  //Tag'i Stone olan nesnelere temas ederse
@@ -96,6 +107,7 @@ public class Astronot_hareket : MonoBehaviour
             toplananBuyukTasSayisi.text = "00" + toplananBuyukTasSayisi.text;
             Debug.Log("Tas toplandi"); //ekrana yaz
             Destroy(collision.gameObject); //toplanan nesneyi sil
+            tasToplamaSesi.Play();
         }
     }
 
@@ -117,18 +129,18 @@ public class Astronot_hareket : MonoBehaviour
 
         if (collision.gameObject.tag == "engel")  //engel tag'ine sahip nesne ile temas edrse
         {
+            //yaralanmaSesi.Play();
             Debug.Log("Ahhhhhhh!!!");//ekrana yazar
             saglik -= 20;
             SaglikText.text = saglik.ToString();
             if (saglik <= 0)
             {
+                gameOverSesi.Play();
                 Destroy(this.gameObject); //bagli oldugu nesneyi yokeder (burada Astro yokolur)
                 oyunSonuPaneli.SetActive(true);
                 oyunSonuTasSayisi.text = tas_sayisi.ToString();
             }
-
         }
-
     }
 
     void YonDegistir()
@@ -156,6 +168,7 @@ public class Astronot_hareket : MonoBehaviour
     {
         oyunumuzBasladiMi = true;
         oyunBasiPaneli.SetActive(false);
-        oyunSonuTasSayisi.text=tas_sayisi.ToString();    }
+        oyunSonuTasSayisi.text = tas_sayisi.ToString();
+    }
 }
 
